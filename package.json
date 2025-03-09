@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "universal-greening-organisation",
+  "name": "universal",
   "version": "0.1.0",
   "private": true,
   "scripts": {

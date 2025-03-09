@@ -1,101 +1,129 @@
-import Image from "next/image";
+"use client"
+import Link from 'next/link'
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import HeroSection from '@/components/Hero';
+import VideoSection from '@/components/VideoSection';
+import { useInView } from 'react-intersection-observer';
+import WhatWeDo from '@/components/whatwedo'
+import { motion } from "framer-motion";
+import { CountingNumbers } from "@/components/ui/counting-numbers";
+import { BackgroundGradient } from "@/components/ui/background-gradient";
+import { TracingBeam } from "@/components/ui/tracing-beam";
+import { SparklesCore } from "@/components/ui/sparkles";
+import Fellowship from '@/components/Fellowship';
+import ImpactSection from '@/components/ImpactSection'
+import LandingPage from '@/components/landingPage';
+
+// Add this array at the top of your component
+const backgroundImages = [
+  {
+    url: '/f3.jpeg',
+    position: '50% 30%'
+  },
+  {
+    url: '/hero4.jpg',
+    position: 'center'
+  },
+  {
+    url: '/hero6.jpg',
+    position: 'center'
+  },
+  {
+    url: '/hero5.jpg',
+    position: 'center'
+  },
+  {
+    url: '/hero7.jpg',
+    position: 'center'
+  }
+];
+
+// Stats section improvements
+const stats = [
+  {
+    number: "10K+",
+    label: "Carbon-Sequestering Trees",
+    subtext: "Contributing to verified carbon offset",
+    icon: "🌳"
+  },
+  {
+    number: "50+",
+    label: "Sustainable Communities",
+    subtext: "ISO 14001 Environmental Management",
+    icon: "🤝"
+  },
+  {
+    number: "50K+",
+    label: "Beneficiary Reach",
+    subtext: "Independently verified impact",
+    icon: "👨‍🎓"
+  },
+  {
+    number: "100+",
+    label: "Green Economy Jobs",
+    subtext: "Certified sustainable practices",
+    icon: "💼"
+  }
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [nextImageLoaded, setNextImageLoaded] = useState(false);
+  
+  // Add refs for preloading next image
+  const nextImageRef = useRef<HTMLImageElement | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  // Modified preload effect
+  useEffect(() => {
+    if (typeof window === 'undefined') return; // Check if we're in browser environment
+    
+    const nextIndex = (currentImageIndex + 1) % backgroundImages.length;
+    const img = new window.Image(); // Use window.Image instead of Image
+    img.src = backgroundImages[nextIndex].url;
+    img.onload = () => setNextImageLoaded(true);
+    nextImageRef.current = img;
+  }, [currentImageIndex]);
+
+  // Modified slideshow effect
+  useEffect(() => {
+    setIsLoaded(true);
+    const interval = setInterval(() => {
+      if (nextImageLoaded) {
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1
+        );
+        setNextImageLoaded(false);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [nextImageLoaded]);
+
+  // Add intersection observer for animations
+  const [statsRef, statsInView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
+  return (
+    <div className="font-sans">
+      {/* Other sections... 
+      <HeroSection />
+      <VideoSection/>
+      <WhatWeDo />
+      <Fellowship />
+      <ImpactSection />
+      
+      
+      
+      */}
+
+      <LandingPage />
     </div>
-  );
+  )
 }
+
+
+

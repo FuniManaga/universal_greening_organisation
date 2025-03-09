@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button"; // Assuming ShadCN UI library
 import { motion } from "framer-motion"; // For animations
 import Link from "next/link";
 import Image from "next/image"; // For optimized images
-import Head from "next/head"; // For SEO meta tags
-
+import Head from "next/head"; 
 const LandingPage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
 
